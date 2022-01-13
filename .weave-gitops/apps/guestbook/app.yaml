@@ -1,0 +1,15 @@
+---
+apiVersion: wego.weave.works/v1alpha1
+kind: Application
+metadata:
+  labels:
+    wego.weave.works/app-identifier: wego-e1f64774305066b821255b78201bfcc7
+  name: guestbook
+  namespace: wego-system
+spec:
+  branch: master
+  config_url: ssh://git@github.com/lokeshjawane/argocd.git
+  deployment_type: kustomize
+  path: guestbook
+  source_type: git
+  url: ssh://git@github.com/lokeshjawane/argocd.git
