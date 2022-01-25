@@ -56,7 +56,7 @@ jobs:
             #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
             <details><summary>Show Plan</summary>
             ```\n
-            cat ${GITHUB_WORKSPACE}/$dir/tf/plan
+            cat ${GITHUB_WORKSPACE}/$dir/tfplan
             ```
             </details>
             EOF
