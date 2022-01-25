@@ -72,21 +72,15 @@ jobs:
         id: vars
         run: echo ::set-output name=data::$(cat tfplan)
 
-      - uses: actions/github-script@0.9.0
+      - name: Create comment
         if: github.event_name == 'pull_request'
-        env:
-          PLAN: ${{steps.data.outputs.content }}
+        uses: peter-evans/create-or-update-comment@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `${process.env.PLAN}`;
-        
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `${output}`
-            })
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+                ${{ steps.vars.outputs.data }}
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
