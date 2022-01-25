@@ -51,23 +51,28 @@ jobs:
               for dir in $dirs
               do
               echo "Terraform Dir : $dir"
-              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color
+              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-colori > tfplan
               done
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           script: |
-            const output = `#### Terraform Plan
+            echo '`' > tfplan
+            for x in infra/s3 infra/s4
+            do
+            cat >> tfplan <<EOF
+            #### Terraform Plan
             <details><summary>Show Plan</summary>
             \`\`\`\n
-            ${process.env.PLAN}
+            cat ${x}/tfplan
             \`\`\`
-            </details>
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            EOF
+            done
+            echo '`' >> tfplan
+
+            const output = $(cat tfplan) 
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
