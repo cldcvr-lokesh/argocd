@@ -61,7 +61,7 @@ jobs:
             </details>
             EOF
             done
-
+            cat ${GITHUB_WORKSPACE}/tfplan
 
       - name: Read tfplan
         id: data
@@ -74,7 +74,6 @@ jobs:
         env:
           PLAN: "${{ steps.data.outputs.content }}"
         with:
-          result-encoding: string
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `${process.env.PLAN}`;
