@@ -53,19 +53,17 @@ jobs:
             cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
             done
 
-            echo '`' > tfplan
             echo "## Terraform Dir : $dir" > tfplan
             for x in $(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             do
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
-            #### Terraform Plan
+            #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
             <details><summary>Show Plan</summary>
             \`\`\`\n
             `cat ${GITHUB_WORKSPACE}/${x}/tfplan`
             \`\`\`
             EOF
             done
-            echo '`' >> tfplan
 
       - name: Readi tfplan
         id: data
@@ -79,8 +77,7 @@ jobs:
           PLAN: ${{ steps.data.outputs.content }}
         if: github.event_name == 'pull_request'
         with:
-          const output = `#### Terraform Plan
-          ${process.env.PLAN}`;
+          const output = `${process.env.PLAN}`;
          
           github.issues.createComment({
             issue_number: context.issue.number,
