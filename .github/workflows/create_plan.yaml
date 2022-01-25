@@ -19,6 +19,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: git fetch origin
+      - name: Setup Nodejs
+        uses: actions/setup-node@v1
 
       # Downloads a specific version of Terraform CLI and adds it to PATH
       # Marketplace: https://github.com/marketplace/actions/hashicorp-setup-terraform
