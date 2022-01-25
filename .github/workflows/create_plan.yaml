@@ -25,3 +25,41 @@ jobs:
               terraform init
               terraform plan
               done
+
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    needs: [ci]
+    steps:
+      # Checkout the code
+      # Marketplace: https://github.com/marketplace/actions/checkout
+      - name: "Setup - Checkout"
+        uses: actions/checkout@v2.1.0
+
+      # Downloads a specific version of Terraform CLI and adds it to PATH
+      # Marketplace: https://github.com/marketplace/actions/hashicorp-setup-terraform
+      - name: "Setup - Terraform CLI"
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+
+      # Init pulls credentials from the .aws/credentials file by default
+      - name: "Run - Terraform Init"
+        run: |
+              dirs=$(git diff master ${GITHUB_REF#refs/heads/} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              for dir in $dirs
+              do
+              cd $dir && terraform init -input=false
+              done
+
+
+      # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
+      # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
+      - name: "Run - Terraform Plan & Apply"
+        id: plan
+        run: |
+              dirs=$(git diff master ${GITHUB_REF#refs/heads/} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              for dir in $dirs
+              do
+              cd $dir && terraform plan -input=false -no-color
+              done
