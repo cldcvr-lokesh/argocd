@@ -50,7 +50,7 @@ jobs:
               for dir in $dirs
               do
               echo "Terraform Dir : $dir"
-              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color
+              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color -out=terraform-plan.json
               done
 
       - name: Update Pull Request
@@ -61,10 +61,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outputs.stdout }}\`
+            #### Terraform Plan
             <details><summary>Show Plan</summary>
             \`\`\`\n
             ${process.env.PLAN}
