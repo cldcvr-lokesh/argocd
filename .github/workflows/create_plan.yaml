@@ -74,6 +74,7 @@ jobs:
         env:
           PLAN: "${{ steps.data.outputs.content }}"
         with:
+          result-encoding: string
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `${process.env.PLAN}`;
