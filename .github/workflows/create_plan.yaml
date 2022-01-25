@@ -34,7 +34,7 @@ jobs:
               dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
-              cd $dir && terraform init -input=false
+              cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
               done
 
 
@@ -46,5 +46,5 @@ jobs:
               dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
-              cd $dir && terraform plan -input=false -no-color
+              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color
               done
