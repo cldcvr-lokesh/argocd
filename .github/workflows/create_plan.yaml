@@ -61,7 +61,7 @@ jobs:
             #### Terraform Plan
             <details><summary>Show Plan</summary>
             \`\`\`\n
-            `cat ${x}/tfplan`
+            `cat ${GITHUB_WORKSPACE}/${x}/tfplan`
             \`\`\`
             EOF
             done
