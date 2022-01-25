@@ -74,7 +74,7 @@ jobs:
         with:
           script: |
             const fs = require('fs')
-            const output = fs.readFileSync('${{ GITHUB_WORKSPACE }}/tfplan', 'utf8')
+            const output = fs.readFileSync($GITHUB_WORKSPACE.concat('/', 'tfplan'),'utf8')
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
