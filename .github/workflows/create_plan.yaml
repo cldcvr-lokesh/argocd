@@ -72,12 +72,12 @@ jobs:
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.data.outputs.content }}"
+          PLAN: "${{ GITHUB_WORKSPACE }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs')
-            const data = fs.readFileSync( ${{GITHUB_WORKSPACE}} + 'tfplan', 'utf8')
+            const data = fs.readFileSync( ${process.env.PLAN}  + 'tfplan', 'utf8')
             const output = `${data}`;
         
             github.issues.createComment({
