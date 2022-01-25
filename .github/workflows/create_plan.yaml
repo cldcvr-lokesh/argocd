@@ -50,7 +50,6 @@ jobs:
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            echo $dir
             cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
             #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
@@ -61,6 +60,7 @@ jobs:
             </details>
             EOF
             done
+            cat ${GITHUB_WORKSPACE}/tfplan
 
       - name: Read tfplan
         id: data
@@ -79,7 +79,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-                cat ${GITHUB_WORKSPACE}/$dir/tfplan
+               ${{ steps.plan.outputs.stdout }}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
