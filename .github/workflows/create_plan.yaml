@@ -71,16 +71,19 @@ jobs:
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
+        env:
+          TFPLAN: "${{ GITHUB_WORKSPACE }}"
         with:
           script: |
             const fs = require('fs')
-            const output = fs.readFileSync($GITHUB_WORKSPACE.concat('/', 'tfplan'),'utf8')
+            const output = fs.readFileSync( ${process.env.TFPLAN}.concat('/', 'tfplan'),'utf8')
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
             })
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
