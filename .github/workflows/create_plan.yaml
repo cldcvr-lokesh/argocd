@@ -67,16 +67,18 @@ jobs:
             done
             echo '`' >> tfplan
 
+      - name: Readi tfplan
+        id: data
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: "${GITHUB_WORKSPACE}/tfplan"
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
-        env:
-          TFPLAN: ${GITHUB_WORKSPACE}
         with:
           script: |
-            const fs = require('fs');
-            const output = fs.readFileSync(${process.env.TFPLAN} + 'tfplan', 'utf8');
+            const output = ${{ steps.data.outputs.content }}
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
