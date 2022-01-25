@@ -69,6 +69,10 @@ jobs:
         with:
           path: ./tfplan
 
+      - name: Get version
+        id: vars
+        run: echo ::set-output name=data::$(cat tfplan)
+
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
@@ -76,9 +80,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
-            const data = fs.readFileSync( ${process.env.PLAN}  + 'tfplan', 'utf8');
-            const output = `${data}`;
+            const output = `${{ steps.vars.outputs.data }}`;
         
             github.issues.createComment({
               issue_number: context.issue.number,
