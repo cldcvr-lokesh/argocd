@@ -34,7 +34,7 @@ jobs:
       - name: "Run - Terraform Init"
         run: |
               ls -l
-              dirs=$(git diff 'remotes/origin/master' ${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
@@ -47,7 +47,7 @@ jobs:
         id: plan
         if: github.event_name == 'pull_request'
         run: |
-              dirs=$(git diff 'remotes/origin/master' ${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               echo "Terraform Dir : $dir"
