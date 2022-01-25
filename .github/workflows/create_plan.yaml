@@ -57,7 +57,7 @@ jobs:
             echo '`' > tfplan
             for x in $(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             do
-            cat >> tfplan <<EOF
+            cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
             #### Terraform Plan
             <details><summary>Show Plan</summary>
             \`\`\`\n
@@ -74,7 +74,7 @@ jobs:
         with:
           script: |
             const fs = require('fs')
-            const output = fs.readFileSync('tfplan', 'utf8')
+            const output = fs.readFileSync('${{ GITHUB_WORKSPACE }}/tfplan', 'utf8')
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
