@@ -31,7 +31,7 @@ jobs:
       - name: "Run - Terraform Init"
         run: |
               ls -l
-              dirs=$(git diff master ${GITHUB_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd $dir && terraform init -input=false
@@ -43,7 +43,7 @@ jobs:
       - name: "Run - Terraform Plan & Apply"
         id: plan
         run: |
-              dirs=$(git diff master ${GITHUB_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd $dir && terraform plan -input=false -no-color
