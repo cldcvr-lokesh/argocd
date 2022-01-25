@@ -50,57 +50,5 @@ jobs:
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
+            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color
             done
-
-            echo "## Terraform Dir : $dir" > tfplan
-            for x in $(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
-            do
-            cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
-            #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
-            <details><summary>Show Plan</summary>
-            \`\`\`\n
-            `cat ${GITHUB_WORKSPACE}/${x}/tfplan`
-            \`\`\`
-            </details>
-            EOF
-            done
-
-      - name: Read tfplan
-        id: data
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./tfplan
-
-      - uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.data.outputs.content }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `#### Terraform Format 
-            #### Terraform Initialization
-            #### Terraform Validation
-            #### Terraform Plan
-            
-            <details><summary>Show Plan</summary>
-            
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-            
-            </details>
-            
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-        
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
