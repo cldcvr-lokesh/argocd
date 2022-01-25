@@ -10,7 +10,7 @@ jobs:
 
   terraform:
     name: "Terraform"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, my-runner]
     steps:
       # Checkout the code
       # Marketplace: https://github.com/marketplace/actions/checkout
