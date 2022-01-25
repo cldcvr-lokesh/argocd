@@ -79,7 +79,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = ${{ steps.data.outputs.content }};
+            const output = `${{ steps.data.outputs.content }}`;
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
