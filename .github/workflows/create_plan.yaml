@@ -30,7 +30,7 @@ jobs:
       # Init pulls credentials from the .aws/credentials file by default
       - name: "Run - Terraform Init"
         run: |
-              dirs=$(git diff origin/master origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff master ${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd $dir && terraform init -input=false
@@ -42,7 +42,7 @@ jobs:
       - name: "Run - Terraform Plan & Apply"
         id: plan
         run: |
-              dirs=$(git diff origin/master origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff master ${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd $dir && terraform plan -input=false -no-color
