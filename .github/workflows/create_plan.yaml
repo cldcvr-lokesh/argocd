@@ -76,7 +76,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `${process.env.PLAN}`;
+            const fs = require('fs')
+            const data = fs.readFileSync( ${{GITHUB_WORKSPACE}} + 'tfplan', 'utf8')
+            const output = `${data}`;
         
             github.issues.createComment({
               issue_number: context.issue.number,
