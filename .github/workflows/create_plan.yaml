@@ -51,7 +51,7 @@ jobs:
               for dir in $dirs
               do
               echo "Terraform Dir : $dir"
-              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color -out=terraform-plan.json
+              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color
               done
 
       - name: Update Pull Request
