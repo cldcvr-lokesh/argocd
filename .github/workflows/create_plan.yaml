@@ -78,7 +78,7 @@ jobs:
           PLAN: ${{ steps.data.outputs.content }}
         if: github.event_name == 'pull_request'
         with:
-          const output = `${process.env.PLAN}`;
+          const output = ${process.env.PLAN};
           github.issues.createComment({
           issue_number: context.issue.number,
           owner: context.repo.owner,
