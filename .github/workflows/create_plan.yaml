@@ -76,7 +76,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const output = fs.readFileSync(${process.env.TFPLAN}.concat('/', 'tfplan'),'utf8');
+            const output = fs.readFileSync(${process.env.TFPLAN} + 'tfplan', 'utf8');
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
