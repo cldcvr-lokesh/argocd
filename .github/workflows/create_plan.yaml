@@ -51,7 +51,7 @@ jobs:
               for dir in $dirs
               do
               echo "Terraform Dir : $dir"
-              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-colori > tfplan
+              cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
               done
 
       - name: Update Pull Request
@@ -60,7 +60,7 @@ jobs:
         with:
           script: |
             echo '`' > tfplan
-            for x in infra/s3 infra/s4
+            for x in $(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             do
             cat >> tfplan <<EOF
             #### Terraform Plan
