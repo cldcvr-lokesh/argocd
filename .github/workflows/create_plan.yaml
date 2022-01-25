@@ -61,7 +61,6 @@ jobs:
             </details>
             EOF
             done
-            cat ${GITHUB_WORKSPACE}/tfplan
 
       - name: Read tfplan
         id: data
@@ -76,11 +75,11 @@ jobs:
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          PLAN: ${ GITHUB_WORKSPACE }
+          PLAN: ${{steps.data.outputs.content }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `${{ steps.vars.outputs.data }}`;
+            const output = `${process.env.PLAN}`;
         
             github.issues.createComment({
               issue_number: context.issue.number,
