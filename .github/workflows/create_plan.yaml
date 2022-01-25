@@ -71,7 +71,7 @@ jobs:
         id: data
         uses: juliangruber/read-file-action@v1
         with:
-          path: "${GITHUB_WORKSPACE}/tfplan"
+          path: ${GITHUB_WORKSPACE}/tfplan
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
