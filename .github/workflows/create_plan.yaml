@@ -45,6 +45,7 @@ jobs:
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
       - name: "Run - Terraform Plan & Apply"
         id: plan
+        if: github.event_name == 'pull_request'
         run: |
               dirs=$(git diff 'remotes/origin/master' ${GITHUB_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
