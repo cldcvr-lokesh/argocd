@@ -4,7 +4,8 @@ name: Create terraform plan
 on:
   push:
     branches:
-      - staging
+      - master
+  pull_request:
 
 jobs:
 
