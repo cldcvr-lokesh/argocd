@@ -54,9 +54,10 @@ jobs:
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
             #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
             <details><summary>Show Plan</summary>
-            ```
+            \`\`\`
+
             cat ${GITHUB_WORKSPACE}/$dir/tfplan
-            ```
+            \`\`\`
             </details>
             EOF
             done
@@ -75,11 +76,13 @@ jobs:
       - name: Create comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v1
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           issue-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-               ${{ steps.plan.outputs.stdout }}
+             ${process.env.PLAN}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
