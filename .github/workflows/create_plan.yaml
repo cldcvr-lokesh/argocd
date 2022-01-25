@@ -80,8 +80,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           const output = `#### Terraform Plan
-          ${process.env.PLAN}
-          </details>`;
+          ${process.env.PLAN}`;
          
           github.issues.createComment({
             issue_number: context.issue.number,
