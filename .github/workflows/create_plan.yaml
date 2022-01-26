@@ -58,7 +58,8 @@ jobs:
             </details>
             EOF
             done
-            cat ${GITHUB_WORKSPACE}/tfplan
+            body=`cat ${GITHUB_WORKSPACE}/tfplan`
+            echo "::set-output name=body::$body"
 
       - name: Create comment
         if: github.event_name == 'pull_request'
@@ -68,7 +69,7 @@ jobs:
           comment-author: 'github-actions[bot]'
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-             ${{ steps.plan.outputs.stdout }}
+             ${{ steps.plan.outputs.body }}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
