@@ -58,7 +58,7 @@ jobs:
             </details>
             EOF
             done
-            cat ${GITHUB_WORKSPACE}/tfplan
+            echo < ${GITHUB_WORKSPACE}/tfplan
 
       - name: Create comment
         if: github.event_name == 'pull_request'
@@ -67,16 +67,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body: |
-            This is a multi-line test comment
-            <details>
-            ```
-            - With GitHub **Markdown** :sparkles:
-            - Created by [create-or-update-comment][1]
-
-            [1]: https://github.com/peter-evans/create-or-update-comment`
-            ```
-            </details>
-          reactions: '+1'
+             ${{ steps.plan.outputs.stdout }}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
