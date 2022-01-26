@@ -3,7 +3,7 @@ name: Deploy
 on:
   pull_request:
     types: [closed]
-    
+
 jobs:
   deploy:
     runs-on: [self-hosted, my-runner]
@@ -29,7 +29,7 @@ jobs:
       - name: "Run - Terraform Init"
         run: |
               ls -l
-              dirs=$(git diff HEAD^ HEAD --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
@@ -39,19 +39,18 @@ jobs:
       # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
       - name: "Run - Terraform Plan"
-        id: plan
-        if: github.event_name == 'pull_request'
+        id: apply
         run: |
-            dirs=$(git diff HEAD^ HEAD --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+            dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color > tfplan
-            cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
+            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color > tfapply
+            cat >> ${GITHUB_WORKSPACE}/tfapply <<EOF
             <details><summary>$dir</summary>
 
             \`\`\`
 
-            `cat tfplan`
+            `cat tfapply`
 
             \`\`\`
 
@@ -60,22 +59,22 @@ jobs:
             EOF
             done
 
-      - name: Read tfplan
+      - name: Read tfapply
         id: data
         uses: juliangruber/read-file-action@v1
         with:
-          path: ./tfplan
+          path: ./tfapply
 
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.data.outputs.content }}"
+          APPLY: "${{ steps.data.outputs.content }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `## Terraform PLAN outputs
+            const output = `## Terraform APPLY outputs
 
-            ${process.env.PLAN}
+            ${process.env.APPLY}
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
@@ -85,6 +84,6 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
+      - name: Terraform Apply Status
+        if: steps.apply.outcome == 'failure'
         run: exit 1
