@@ -10,7 +10,6 @@ jobs:
   terraform-apply:
     name: "Terraform"
     runs-on: self-hosted
-    if: ${{ github.event.issue.pull_request }}
     steps:
         - name: Execute for pull request comments only
           if: github.event.issue.pull_request
