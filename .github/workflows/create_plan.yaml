@@ -73,14 +73,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format
-            #### Terraform Initialization
-            #### Terraform Validation
-            #### Terraform Plan
-
+            const output = `Terraform
 
             ${process.env.PLAN}
-  
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
             github.issues.createComment({
