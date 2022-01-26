@@ -1,5 +1,5 @@
 name: Act on PR comments
-on: issue_comment
+on: pull_request_comment
 
 jobs:
   pr_commented:
