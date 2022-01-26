@@ -6,9 +6,12 @@ on:
     - created
 
 jobs:
-  runs-on: ubuntu-latest
-  if: ${{ github.event.issue.pull_request }}
-  steps:
-      - name: Execute for pull request comments only
-        if: github.event.issue.pull_request
-        run: echo "This is a pull request comment event"
+
+  terraform-apply:
+    name: "Terraform"
+    runs-on: self-hosted
+    if: ${{ github.event.issue.pull_request }}
+    steps:
+        - name: Execute for pull request comments only
+          if: github.event.issue.pull_request
+          run: echo "This is a pull request comment event"
