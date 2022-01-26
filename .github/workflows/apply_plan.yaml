@@ -1,4 +1,4 @@
-name: Run on PR comment
+name: Deploy
 
 on:
   issue_comment:
@@ -6,11 +6,25 @@ on:
     - created
 
 jobs:
-
-  terraform-apply:
-    name: "Terraform"
-    runs-on: self-hosted
+  deploy:
+    runs-on: seld-hosted
+    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/deploy'}}
     steps:
-        - name: Execute for pull request comments only
-          if: github.event.issue.pull_request
-          run: echo "This is a pull request comment event"
+    - name: Get PR SHA
+      id: sha
+      uses: actions/github-script@v4
+      with:
+        result-encoding: string
+        script: |
+          const { owner, repo, number } = context.issue;
+          const pr = await github.pulls.get({
+            owner,
+            repo,
+            pull_number: number,
+          });
+          return pr.data.head.sha
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.sha.outputs.result }}
+      - name: Run deployment
+        run: make deploy
