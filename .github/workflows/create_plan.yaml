@@ -52,7 +52,7 @@ jobs:
             do
             cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
-            <details><summary>Show Plan for *${GITHUB_WORKSPACE}/$dir*</summary>
+            <details><summary>$dir</summary>
 
             \`\`\`
 
