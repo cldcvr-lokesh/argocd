@@ -1,14 +1,13 @@
 name: Act on PR comments
 on:
-  pull_request:
-    types: [opened]
   issue_comment:
-    types: [created]
+    types: [created, edited, deleted]
+
 jobs:
   pr_commented:
     # This job only runs for pull request comments
     name: PR comment
-    if: ${{ github.event.issue.pull_request }}
+    if: contains(github.event.comment.body, 'test comment')
     runs-on: [self-hosted, my-runner]
     steps:
       - uses: actions/github-script@0.9.0
@@ -16,7 +15,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `
-            comment reviewed`;
+            comment ${{github.event.comment.body}}`;
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
