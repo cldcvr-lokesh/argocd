@@ -51,16 +51,10 @@ jobs:
             for dir in $dirs
             do
             cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
-            done
-
-            echo "## Terraform Dir : $dir" > tfplan
-            for x in $(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
-            do
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
-            #### Terraform Plan for ${GITHUB_WORKSPACE}/$dir
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan for ${GITHUB_WORKSPACE}/$dir</summary>
             \`\`\`\n
-            `cat ${GITHUB_WORKSPACE}/${x}/tfplan`
+            `cat tfplan`
             \`\`\`
             </details>
             EOF
@@ -83,7 +77,6 @@ jobs:
             #### Terraform Initialization
             #### Terraform Validation
             #### Terraform Plan
-
 
             ${process.env.PLAN}
 
