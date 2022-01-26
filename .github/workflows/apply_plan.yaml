@@ -44,7 +44,7 @@ jobs:
             dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color > tfapply
+            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color -auto-approve > tfapply
             cat >> ${GITHUB_WORKSPACE}/tfapply <<EOF
             <details><summary>$dir</summary>
 
