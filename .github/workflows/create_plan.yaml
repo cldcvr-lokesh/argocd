@@ -53,10 +53,15 @@ jobs:
             cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
             <details><summary>Show Plan for ${GITHUB_WORKSPACE}/$dir</summary>
+
             \`\`\`
+
             `cat tfplan`
+
             \`\`\`
+
             </details>
+            
             EOF
             done
 
@@ -73,7 +78,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `Terraform 
+            const output = `Terraform
 
             ${process.env.PLAN}
 
