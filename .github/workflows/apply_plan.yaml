@@ -6,7 +6,7 @@ on:
     - created
   pull_request:
     types: [opened, edited]
-    branches:
+    branches-ignore:
       - main
       - master
 jobs:
