@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  issue_comment:
+    types:
+    - created
+  pull_request:
+    types: [opened, edited]
+    branches-ignore:
+      - main
+      - master
+jobs:
+  deploy:
+    runs-on: [self-hosted, my-runner]
+    if: ${{ github.event.comment.body == '/deploy'}}
+    steps:
+      - name: Like pizza
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const {owner, repo} = context.issue
+            github.reactions.createForIssueComment({
+              owner,
+              repo,
+              comment_id: context.payload.comment.id,
+              content: "+1",
+            });
