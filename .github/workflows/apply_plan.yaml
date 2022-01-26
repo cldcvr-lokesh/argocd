@@ -1,3 +1,4 @@
+name: Act on PR comments
 on: issue_comment
 
 jobs:
