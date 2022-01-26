@@ -1,27 +1,89 @@
 name: Deploy
 
 on:
-  issue_comment:
-    types:
-    - created
   pull_request:
-    types: [opened, edited]
-    branches-ignore:
-      - main
-      - master
+    types: [closed]
+
 jobs:
   deploy:
     runs-on: [self-hosted, my-runner]
-    if: ${{ github.event.comment.body == '/deploy'}}
     steps:
-      - name: Like pizza
-        uses: actions/github-script@v4
+      # Checkout the code
+      # Marketplace: https://github.com/marketplace/actions/checkout
+      - name: "Setup - Checkout"
+        uses: actions/checkout@v2.1.0
         with:
+          fetch-depth: 0
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v1
+
+      # Downloads a specific version of Terraform CLI and adds it to PATH
+      # Marketplace: https://github.com/marketplace/actions/hashicorp-setup-terraform
+      - name: "Setup - Terraform CLI"
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+
+      # Init pulls credentials from the .aws/credentials file by default
+      - name: "Run - Terraform Init"
+        run: |
+              ls -l
+              dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+              for dir in $dirs
+              do
+              cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
+              done
+
+
+      # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
+      # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
+      - name: "Run - Terraform Plan"
+        id: apply
+        run: |
+            dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+            for dir in $dirs
+            do
+            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color > tfapply
+            cat >> ${GITHUB_WORKSPACE}/tfapply <<EOF
+            <details><summary>$dir</summary>
+
+            \`\`\`
+
+            `cat tfapply`
+
+            \`\`\`
+
+            </details>
+
+            EOF
+            done
+
+      - name: Read tfapply
+        id: data
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./tfapply
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          APPLY: "${{ steps.data.outputs.content }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const {owner, repo} = context.issue
-            github.reactions.createForIssueComment({
-              owner,
-              repo,
-              comment_id: context.payload.comment.id,
-              content: "+1",
-            });
+            const output = `## Terraform APPLY outputs
+
+            ${process.env.APPLY}
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - name: Terraform Apply Status
+        if: steps.apply.outcome == 'failure'
+        run: exit 1
