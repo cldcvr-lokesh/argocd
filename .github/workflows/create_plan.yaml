@@ -27,8 +27,15 @@ jobs:
         with:
           terraform_version: 0.13.5
 
+      - name: Get branch diff
+        id: gitdiff
+        run: |
+          dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+          echo "::set-output name=dir::$dir"
+          
       # Init pulls credentials from the .aws/credentials file by default
       - name: "Run - Terraform Init"
+        if: steps.gitdiff.outputs.dir != ''
         run: |
               ls -l
               dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
@@ -42,7 +49,7 @@ jobs:
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
       - name: "Run - Terraform Plan"
         id: plan
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
         run: |
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
@@ -64,12 +71,13 @@ jobs:
 
       - name: Read tfplan
         id: data
+        if: steps.gitdiff.outputs.dir != ''
         uses: juliangruber/read-file-action@v1
         with:
           path: ./tfplan
 
       - uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
         env:
           PLAN: "${{ steps.data.outputs.content }}"
         with:
