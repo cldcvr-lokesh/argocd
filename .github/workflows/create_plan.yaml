@@ -62,7 +62,8 @@ jobs:
             body="${body//'%'/'%25'}"
             body="${body//$'\n'/'%0A'}"
             body="${body//$'\r'/'%0D'}"
-            echo "$body"
+            echo "$body" > ${GITHUB_WORKSPACE}/tfplan
+            cat ${GITHUB_WORKSPACE}/tfplan
 
       - name: Create comment
         if: github.event_name == 'pull_request'
