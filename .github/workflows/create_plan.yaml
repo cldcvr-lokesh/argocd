@@ -45,7 +45,6 @@ jobs:
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
       - name: "Run - Terraform Plan & Apply"
         id: plan
-        if: github.event_name == 'pull_request'
         run: |
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
@@ -80,7 +79,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: ${{ steps.vars.outputs.data }}
+          body: ${{ steps.plan.outputs.stdout}}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
