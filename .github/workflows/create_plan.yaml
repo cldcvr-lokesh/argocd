@@ -60,16 +60,13 @@ jobs:
             EOF
             done
             cat ${GITHUB_WORKSPACE}/tfplan
+            echo ::set-output name=data::$(cat tfplan)
 
       - name: Read tfplan
         id: data
         uses: juliangruber/read-file-action@v1
         with:
           path: ./tfplan
-
-      - name: Get version
-        id: vars
-        run: echo ::set-output name=data::$(cat tfplan)
 
       - name: Create comment
         if: github.event_name == 'pull_request'
@@ -79,7 +76,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: ${{ steps.plan.outputs.stdout}}
+          body: ${{ steps.plan.outputs.data}}
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
