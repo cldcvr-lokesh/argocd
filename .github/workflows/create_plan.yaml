@@ -30,9 +30,9 @@ jobs:
       - name: Get branch diff
         id: gitdiff
         run: |
-          dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
+          dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
           echo "::set-output name=dir::$dir"
-          
+
       # Init pulls credentials from the .aws/credentials file by default
       - name: "Run - Terraform Init"
         if: steps.gitdiff.outputs.dir != ''
