@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "b" {
   bucket = "my-tf-test-bucket1werwer"
   acl    = "private"
 
-  tags = {
+  tags  {
     Name        = "My bucket"
     Environment = "dsfsadfDev"
   }
