@@ -38,7 +38,7 @@ jobs:
       - name: "Run - Terraform Init"
 #        if: steps.gitdiff.outputs.dir != ''
         run: |
-              if [[ steps.gitdiff.outputs.dir == "" ]];then
+              if [[ steps.gitdiff.outputs.dir != "" ]];then
               ls -l
               dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
@@ -88,7 +88,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            if( ${{steps.gitdiff.outputs.dir}} !== '' ) {
+            if( ${{steps.gitdiff.outputs.dir}} != '' ) {
             const output = `## Terraform PLAN outputs
 
             ${process.env.PLAN}
