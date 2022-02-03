@@ -36,14 +36,16 @@ jobs:
 
       # Init pulls credentials from the .aws/credentials file by default
       - name: "Run - Terraform Init"
-        if: steps.gitdiff.outputs.dir != ''
+#        if: steps.gitdiff.outputs.dir != ''
         run: |
+              if [[ steps.gitdiff.outputs.dir != "" ]];then
               ls -l
               dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF} --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
               done
+              fi
 
 
       # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
