@@ -58,7 +58,9 @@ jobs:
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan
+            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan 2>&1
+            if [[ $? != 0 ]];then
+            echo "::set-output name=plan_status::1"
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
             <details><summary>$dir</summary>
 
@@ -71,6 +73,20 @@ jobs:
             </details>
 
             EOF
+            else
+            cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
+            <details><summary>$dir</summary>
+
+            \`\`\`
+
+            `cat tfplan`
+
+            \`\`\`
+
+            </details>
+
+            EOF
+            fi
             done
             fi
 
@@ -101,5 +117,5 @@ jobs:
               body: output
             })
       - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
+        if: steps.plan.plan_status == 1
         run: exit 1
