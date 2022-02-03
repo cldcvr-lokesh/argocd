@@ -95,6 +95,7 @@ jobs:
         id: data
         if: steps.gitdiff.outputs.dir != ''
         uses: juliangruber/read-file-action@v1
+        continue-on-error: true
         with:
           path: ./tfplan
 
@@ -102,6 +103,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
         env:
           PLAN: "${{ steps.data.outputs.content }}"
+        continue-on-error: true
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
