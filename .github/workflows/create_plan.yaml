@@ -52,6 +52,7 @@ jobs:
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
       - name: "Run - Terraform Plan"
         id: plan
+        continue-on-error: true
         if:  github.event_name == 'pull_request'
         run: |
             echo ${{steps.gitdiff.outputs.dir}}
