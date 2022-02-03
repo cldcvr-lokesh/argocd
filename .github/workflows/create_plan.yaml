@@ -84,7 +84,7 @@ jobs:
       - uses: actions/github-script@0.9.0
         if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
         env:
-          PLAN: "${{ steps.data.outputs.content  steps.gitdiff.outputs.dir}}"
+          PLAN: "${{ steps.data.outputs.content }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
