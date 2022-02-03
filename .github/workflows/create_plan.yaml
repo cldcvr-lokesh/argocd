@@ -1,5 +1,5 @@
 
-name: Create terraform plan
+name: Terraform plan
 
 on:
   pull_request:
@@ -36,7 +36,6 @@ jobs:
 
       # Init pulls credentials from the .aws/credentials file by default
       - name: "Run - Terraform Init"
-#        if: steps.gitdiff.outputs.dir != ''
         run: |
               if [[ steps.gitdiff.outputs.dir != "" ]];then
               ls -l
@@ -60,10 +59,8 @@ jobs:
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan 2>&1 && true || echo '::set-output name=TF_PLAN_STATUS::fail'
-            echo "::set-output name=plan_status::1"
+            cd ${GITHUB_WORKSPACE}/$dir && terraform plan -input=false -no-color > tfplan 2>&1 && echo "<details><summary>$dir</summary>" >>  ${GITHUB_WORKSPACE}/tfplan || { echo '::set-output name=TF_PLAN_STATUS::fail'; echo "<details><summary>Error in $dir terraform plan</summary>" >>  ${GITHUB_WORKSPACE}/tfplan; }
             cat >> ${GITHUB_WORKSPACE}/tfplan <<EOF
-            <details><summary>$dir</summary>
 
             \`\`\`
 
