@@ -1,4 +1,4 @@
-name: Deploy
+name: Terraform Apply
 
 on:
   pull_request:
@@ -35,27 +35,29 @@ jobs:
       - name: "Run - Terraform Init"
         if: steps.gitdiff.outputs.dir != ''
         run: |
-              ls -l
+              if [[ steps.gitdiff.outputs.dir != "" ]];then
               dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
               for dir in $dirs
               do
               cd ${GITHUB_WORKSPACE}/$dir && terraform init -input=false
               done
+              fi
 
 
       # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
       # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
-      - name: "Run - Terraform Plan"
+      - name: "Run - Terraform Apply"
         if: steps.gitdiff.outputs.dir != ''
+        continue-on-error: true
         id: apply
         run: |
+            echo ${{steps.gitdiff.outputs.dir}}
+            if [[ steps.gitdiff.outputs.dir != "" ]];then
             dirs=$(git diff master^ master --name-only | grep -v '^.github/' | xargs dirname  | uniq)
-
             for dir in $dirs
             do
-            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color -auto-approve > tfapply
+            cd ${GITHUB_WORKSPACE}/$dir && terraform apply -input=false -no-color -auto-approve > tfapply 2>&1 && echo "<details><summary>$dir</summary>" >>  ${GITHUB_WORKSPACE}/tfapply || { echo '::set-output name=TF_APPLY_STATUS::fail'; echo "<details><summary>Error in $dir terraform apply</summary>" >>  ${GITHUB_WORKSPACE}/tfapply; }
             cat >> ${GITHUB_WORKSPACE}/tfapply <<EOF
-            <details><summary>$dir</summary>
 
             \`\`\`
 
@@ -67,18 +69,21 @@ jobs:
 
             EOF
             done
+            fi
 
       - name: Read tfapply
         id: data
-        if: steps.gitdiff.outputs.dir != ''
+        continue-on-error: true
         uses: juliangruber/read-file-action@v1
         with:
           path: ./tfapply
 
       - uses: actions/github-script@0.9.0
-        if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
+        if: ${{ github.event_name == 'pull_request' }}
         env:
           APPLY: "${{ steps.data.outputs.content }}"
+        continue-on-error: true
+
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -86,7 +91,7 @@ jobs:
 
             ${process.env.APPLY}
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\` Workflow: \`${{ github.workflow }}\`*`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
@@ -94,6 +99,10 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-      - name: Terraform Apply Status
-        if: steps.apply.outcome == 'failure'
-        run: exit 1
+      - name: Terraform Plan Status
+        run: |
+          if [[ "${{ steps.palm.outputs.TF_APPLY_STATUS }}" == "fail" ]];then
+          exit 1
+          else
+          true
+          fi
