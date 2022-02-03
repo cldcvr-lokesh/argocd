@@ -54,6 +54,7 @@ jobs:
         id: plan
         if:  github.event_name == 'pull_request'
         run: |
+            echo ${{steps.gitdiff.outputs.dir}}
             if [[ steps.gitdiff.outputs.dir != "" ]];then
             dirs=$(git diff 'remotes/origin/master' remotes/origin/${GITHUB_HEAD_REF}  --name-only | grep -v '^.github/' | xargs dirname  | uniq)
             for dir in $dirs
