@@ -1,5 +1,5 @@
 provider "aws" {
-region = "ap-southeast-1"
+region = "a-southeast-1"
 }
 
 data "aws_ami" "ubuntu" {
