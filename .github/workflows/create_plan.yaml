@@ -82,14 +82,12 @@ jobs:
           path: ./tfplan
 
       - uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' && steps.gitdiff.outputs.dir != '' }}
         env:
-          PLAN: "${{ steps.data.outputs.content }}"
+          PLAN: "${{ steps.data.outputs.content  steps.gitdiff.outputs.dir}}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            if [[ steps.gitdiff.outputs.dir =!= "" ]];then
-#            if( ${{steps.gitdiff.outputs.dir}} != '' ) {
             const output = `## Terraform PLAN outputs
 
             ${process.env.PLAN}
@@ -102,7 +100,6 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-            fi
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
